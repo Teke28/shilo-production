@@ -210,3 +210,79 @@ function get_file_url($filename, $type = 'portfolio') {
 function e($data) {
     return htmlspecialchars($data, ENT_QUOTES, 'UTF-8');
 }
+
+// Truncate text
+function truncate($text, $length = 100, $suffix = '...') {
+    if (strlen($text) <= $length) {
+        return $text;
+    }
+    return substr($text, 0, $length) . $suffix;
+}
+
+// Get human readable file size
+function human_filesize($bytes, $precision = 2) {
+    $units = ['B', 'KB', 'MB', 'GB'];
+    for ($i = 0; $bytes > 1024 && $i < count($units) - 1; $i++) {
+        $bytes /= 1024;
+    }
+    return round($bytes, $precision) . ' ' . $units[$i];
+}
+
+// Generate slug
+function generate_slug($text) {
+    $text = strtolower(trim($text));
+    $text = preg_replace('/[^a-z0-9]+/', '-', $text);
+    return trim($text, '-');
+}
+
+// Validate URL
+function is_valid_url($url) {
+    return filter_var($url, FILTER_VALIDATE_URL) !== false;
+}
+
+// Display flash message
+function display_message() {
+    if (isset($_SESSION['message'])) {
+        $type = $_SESSION['message_type'] ?? 'info';
+        echo '<div class="alert alert-' . $type . ' alert-dismissible fade show">';
+        echo e($_SESSION['message']);
+        echo '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>';
+        echo '</div>';
+        unset($_SESSION['message']);
+        unset($_SESSION['message_type']);
+    }
+}
+
+// Redirect with message
+function redirect_with_message($url, $message, $type = 'success') {
+    $_SESSION['message'] = $message;
+    $_SESSION['message_type'] = $type;
+    header('Location: ' . $url);
+    exit;
+}
+
+// Get client IP
+function get_client_ip() {
+    if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
+        $ip = $_SERVER['HTTP_CLIENT_IP'];
+    } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+        $ip = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR'])[0];
+    } else {
+        $ip = $_SERVER['REMOTE_ADDR'];
+    }
+    return $ip;
+}
+
+// Generate random token
+function generate_token($length = 32) {
+    return bin2hex(random_bytes($length));
+}
+
+// Array helpers
+function array_get($array, $key, $default = null) {
+    return $array[$key] ?? $default;
+}
+
+function array_has($array, $key) {
+    return isset($array[$key]);
+}
